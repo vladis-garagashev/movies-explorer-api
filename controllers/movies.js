@@ -46,14 +46,7 @@ const createMovieCard = (req, res, next) => {
     owner: req.user._id,
   })
     .then((movie) => res.send(movie))
-    .catch((error) => {
-      if (error.errors.link) {
-        const newError = new Error('Изображение должно быть ссылкой');
-        newError.statusCode = 400;
-        next(newError);
-      }
-      next(error);
-    });
+    .catch(next);
 };
 
 //-----------------------------------
@@ -64,7 +57,7 @@ const deleteMovieCard = (req, res, next) => {
     .orFail(new NotFoundError('Нет карточки с таким _id'))
     .then((movie) => {
       if (req.user._id !== movie.owner.toString()) {
-        throw new ForbiddenError('Вы не можете удалить эту карточку');
+        throw new ForbiddenError('Вы не можете удалить этот фильм');
       }
       return movie;
     })
