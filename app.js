@@ -5,13 +5,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
-const { celebrate, Joi, errors } = require('celebrate');
 const rateLimit = require('express-rate-limit');
 
 const {
   momgooLink,
   mongooseSettings,
-  linkRegExp,
 } = require('./utils/constants');
 //-----------------------------------
 
@@ -34,6 +32,8 @@ app.use(express.json());
 app.use(cookieParser()); // подключаем cookieParser
 
 //-----------------------------------
+
+app.use('/users', require('./routes/users'));
 
 //-----------------------------------
 
