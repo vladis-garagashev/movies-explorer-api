@@ -1,7 +1,40 @@
+const { NODE_ENV, JWT_SECRET } = process.env;
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const NotFoundError = require('../errors/not-found-err');
 
 const User = require('../models/user');
+
+//-----------------------------------
+
+// Отправка запроса авторизации
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, NODE_ENV ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
+
+      res
+        .cookie('jwt', token, {
+          maxAge: 3600000 * 24 * 7,
+          httpOnly: true,
+        })
+        .send({
+          email: user.email,
+          name: user.name,
+          _id: user._id,
+        });
+    })
+    .catch((error) => {
+      if (error.message === 'Unauthorized') {
+        const newError = new Error('Неправильные почта или пароль');
+        newError.statusCode = 401;
+        next(newError);
+      }
+      next(error);
+    });
+};
 
 //-----------------------------------
 
@@ -64,6 +97,7 @@ const edutCurrentUserInfo = (req, res, next) => {
 //-----------------------------------
 
 module.exports = {
+  login,
   createUser,
   getCurrentUser,
   edutCurrentUserInfo,

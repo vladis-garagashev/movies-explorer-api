@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const { PORT = 5000, NODE_ENV } = process.env;
+const { PORT = 5000 } = process.env;
 const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
@@ -11,9 +11,7 @@ const {
   momgooLink,
   mongooseSettings,
 } = require('./utils/constants');
-const {
-  createUser,
-} = require('./controllers/users');
+const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 //-----------------------------------
 
@@ -37,6 +35,7 @@ app.use(cookieParser()); // подключаем cookieParser
 
 //-----------------------------------
 
+app.post('/signin', login);
 app.post('/signup', createUser);
 
 app.use('/users', auth, require('./routes/users'));
