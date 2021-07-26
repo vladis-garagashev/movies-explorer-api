@@ -1,4 +1,5 @@
 const NotFoundError = require('../errors/not-found-err');
+const ForbiddenError = require('../errors/forbidden-err');
 
 const Movie = require('../models/movie');
 
@@ -59,9 +60,19 @@ const createMovieCard = (req, res, next) => {
 
 // Удаляем карточку с фильмом
 const deleteMovieCard = (req, res, next) => {
-  Movie.deleteOne(req.params.movieId)
-    .orFail(new NotFoundError('Нет фильма с таким _id'))
-    .then(() => res.send({ message: 'Фильм удален' }))
+  Movie.findById(req.params.moviedId)
+    .orFail(new NotFoundError('Нет карточки с таким _id'))
+    .then((movie) => {
+      if (req.user._id !== movie.owner.toString()) {
+        throw new ForbiddenError('Вы не можете удалить эту карточку');
+      }
+      return movie;
+    })
+    .then((movie) => {
+      Movie.deleteOne({ _id: movie._id })
+        .then(() => res.send({ message: 'Фильм удален' }))
+        .catch(next);
+    })
     .catch(next);
 };
 
