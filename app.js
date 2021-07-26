@@ -19,12 +19,14 @@ const {
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const centralErrorsHandler = require('./middlewares/centralErrorsHandler');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 //-----------------------------------
 
 const app = express();
 
 mongoose.connect(momgooLink, mongooseSettings); // подключаемся к базе данных
 
+app.use(requestLogger); // подключаем логгер запросов
 app.use(helmet()); // подключаем helmet
 
 // подключаем ограничитель количества запросов
@@ -46,6 +48,9 @@ app.post('/signin', signinValidator, login);
 
 app.use('/users', auth, require('./routes/users'));
 app.use('/movies', auth, require('./routes/movies'));
+
+app.use(errorLogger); // подключаем логгер ошибок
+
 //-----------------------------------
 
 app.use(errors()); // обработчик ошибок celebrate
