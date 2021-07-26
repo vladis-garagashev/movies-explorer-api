@@ -20,6 +20,7 @@ const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const centralErrorsHandler = require('./middlewares/centralErrorsHandler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const NotFoundError = require('./errors/not-found-err');
 //-----------------------------------
 
 const app = express();
@@ -48,6 +49,11 @@ app.post('/signin', signinValidator, login);
 
 app.use('/users', auth, require('./routes/users'));
 app.use('/movies', auth, require('./routes/movies'));
+
+// Обработчик запросов на неизвестные роуты
+app.use('/*', (req, res, next) => {
+  next(new NotFoundError('Страница не найдена'));
+});
 
 app.use(errorLogger); // подключаем логгер ошибок
 
