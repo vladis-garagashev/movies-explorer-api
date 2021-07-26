@@ -1,6 +1,36 @@
+const bcrypt = require('bcryptjs');
 const NotFoundError = require('../errors/not-found-err');
 
 const User = require('../models/user');
+
+//-----------------------------------
+
+// Создаем нового пользователя
+const createUser = (req, res, next) => {
+  const { email, name } = req.body;
+
+  bcrypt.hash(req.body.password, 10)
+    .then((hash) => User.create({
+      email,
+      password: hash,
+      name,
+    }))
+    .then((user) => {
+      res.send({
+        email: user.email,
+        name: user.name,
+        _id: user._id,
+      });
+    })
+    .catch((error) => {
+      if (error.name === 'MongoError' && error.code === 11000) {
+        const newError = new Error('Пользователь с данным email существует');
+        newError.statusCode = 409;
+        next(newError);
+      }
+      next(error);
+    });
+};
 
 //-----------------------------------
 
@@ -34,6 +64,7 @@ const edutCurrentUserInfo = (req, res, next) => {
 //-----------------------------------
 
 module.exports = {
+  createUser,
   getCurrentUser,
   edutCurrentUserInfo,
 };
