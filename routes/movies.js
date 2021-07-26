@@ -5,14 +5,16 @@ const {
   createMovieCard,
   deleteMovieCard,
 } = require('../controllers/movies');
+const {
+  createMovieValidator,
+  deleteMovieValidator,
+} = require('../utils/celebrateValidator');
 
 //-----------------------------------
 
 router.get('/', getMoviesCards);
-
-router.post('/', createMovieCard);
-
-router.delete('/:moviedId', deleteMovieCard);
+router.post('/', createMovieValidator, createMovieCard);
+router.delete('/:moviedId', deleteMovieValidator, deleteMovieCard);
 
 //-----------------------------------
 

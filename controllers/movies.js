@@ -61,7 +61,7 @@ const createMovieCard = (req, res, next) => {
 const deleteMovieCard = (req, res, next) => {
   Movie.deleteOne(req.params.movieId)
     .orFail(new NotFoundError('Нет фильма с таким _id'))
-    .then(() => res.send({ message: 'Фильм удалена' }))
+    .then(() => res.send({ message: 'Фильм удален' }))
     .catch(next);
 };
 

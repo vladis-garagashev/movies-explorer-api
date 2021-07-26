@@ -1,4 +1,4 @@
-const momgooLink = 'mongodb://localhost:27017/mestodb';
+const momgooLink = 'mongodb://localhost:27017/diplomadb';
 
 const mongooseSettings = {
   useNewUrlParser: true,

@@ -5,14 +5,20 @@ const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
+const { errors } = require('celebrate');
 const rateLimit = require('express-rate-limit');
 
 const {
   momgooLink,
   mongooseSettings,
 } = require('./utils/constants');
+const {
+  signupValidator,
+  signinValidator,
+} = require('./utils/celebrateValidator');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const centralErrorsHandler = require('./middlewares/centralErrorsHandler');
 //-----------------------------------
 
 const app = express();
@@ -35,11 +41,16 @@ app.use(cookieParser()); // подключаем cookieParser
 
 //-----------------------------------
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signup', signupValidator, createUser);
+app.post('/signin', signinValidator, login);
 
 app.use('/users', auth, require('./routes/users'));
 app.use('/movies', auth, require('./routes/movies'));
+//-----------------------------------
+
+app.use(errors()); // обработчик ошибок celebrate
+app.use(centralErrorsHandler); // централизованный обработчик ошибок
+
 //-----------------------------------
 
 app.listen(PORT, () => {
