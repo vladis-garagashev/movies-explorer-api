@@ -11,6 +11,7 @@ const {
   momgooLink,
   mongooseSettings,
 } = require('./utils/constants');
+const auth = require('./middlewares/auth');
 //-----------------------------------
 
 const app = express();
@@ -33,8 +34,8 @@ app.use(cookieParser()); // подключаем cookieParser
 
 //-----------------------------------
 
-app.use('/users', require('./routes/users'));
-app.use('/movies', require('./routes/movies'));
+app.use('/users', auth, require('./routes/users'));
+app.use('/movies', auth, require('./routes/movies'));
 //-----------------------------------
 
 app.listen(PORT, () => {
