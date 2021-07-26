@@ -34,7 +34,7 @@ app.use(cookieParser()); // подключаем cookieParser
 //-----------------------------------
 
 app.use('/users', require('./routes/users'));
-
+app.use('/movies', require('./routes/movies'));
 //-----------------------------------
 
 app.listen(PORT, () => {
