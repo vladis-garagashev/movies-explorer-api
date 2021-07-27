@@ -15,46 +15,22 @@ const {
   rateLimitConfig,
   corsConfig,
 } = require('./utils/constants');
-const {
-  signupValidator,
-  signinValidator,
-} = require('./middlewares/celebrateValidator');
-const { login, signout, createUser } = require('./controllers/users');
-const auth = require('./middlewares/auth');
+const routes = require('./routes/index');
 const centralErrorsHandler = require('./middlewares/centralErrorsHandler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const NotFoundError = require('./errors/not-found-err');
 //-----------------------------------
 
 const app = express();
 
 app.use(requestLogger); // Подключаем логгер запросов
-app.use(helmet()); // Подключаем helmet
 app.use(rateLimit(rateLimitConfig)); // Подключаем ограничитель количества запросов
+app.use(helmet()); // Подключаем helmet
 app.use(cors(corsConfig)); // Подключаем обработчик CORS
 app.options('*', cors()); // Обрабатываем предварительные запросы
 app.use(express.urlencoded({ extended: true })); // Парсинг веб-страниц внутри POST-запроса
 app.use(express.json()); // Парсинг JSON данных
 app.use(cookieParser()); // Подключаем cookieParser
-
-//-----------------------------------
-
-app.post('/signup', signupValidator, createUser);
-app.post('/signin', signinValidator, login);
-
-app.use(auth);
-
-app.post('/signout', signout);
-app.use('/users', require('./routes/users'));
-app.use('/movies', require('./routes/movies'));
-
-// Обработчик запросов на неизвестные роуты
-app.use('/*', (req, res, next) => {
-  next(new NotFoundError('Страница не найдена'));
-});
-
-//-----------------------------------
-
+app.use(routes); // Подключаем Роуты
 app.use(errorLogger); // подключаем логгер ошибок
 app.use(errors()); // обработчик ошибок celebrate
 app.use(centralErrorsHandler); // централизованный обработчик ошибок
