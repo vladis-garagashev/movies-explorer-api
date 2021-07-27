@@ -2,39 +2,37 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const NotFoundError = require('../errors/not-found-err');
+const ConflictError = require('../errors/conflict-error');
 
 const User = require('../models/user');
 
 //-----------------------------------
 
 // Отправка запроса авторизации
-const login = (req, res, next) => {
-  const { email, password } = req.body;
+const login = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
 
-  return User.findUserByCredentials(email, password)
-    .then((user) => {
-      const token = jwt.sign({ _id: user._id }, NODE_ENV ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
+    const user = await User.findUserByCredentials(email, password);
+    const token = jwt.sign(
+      { _id: user._id },
+      NODE_ENV ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' },
+    );
 
-      res
-        .cookie('jwt', token, {
-          maxAge: 3600000 * 24 * 7,
-          httpOnly: true,
-          sameSite: true,
-        })
-        .send({
-          email: user.email,
-          name: user.name,
-          _id: user._id,
-        });
-    })
-    .catch((error) => {
-      if (error.message === 'Unauthorized') {
-        const newError = new Error('Неправильные почта или пароль');
-        newError.statusCode = 401;
-        next(newError);
-      }
-      next(error);
-    });
+    res
+      .cookie('jwt', token, {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+        sameSite: true,
+      })
+      .send({
+        _id: user._id,
+        email: user.email,
+        name: user.name,
+      });
+  } catch (error) {
+    next(error);
+  }
 };
 
 //-----------------------------------
@@ -53,59 +51,78 @@ const signout = (req, res, next) => {
 //-----------------------------------
 
 // Создаем нового пользователя
-const createUser = (req, res, next) => {
-  const { email, name } = req.body;
+const createUser = async (req, res, next) => {
+  try {
+    const { email, name } = req.body;
 
-  bcrypt.hash(req.body.password, 10)
-    .then((hash) => User.create({
+    const candidate = await User.findOne({ email });
+
+    if (candidate) {
+      next(new ConflictError('Пользователь с данным email существует'));
+      return;
+    }
+
+    const hashedPassword = bcrypt.hashSync(req.body.password, 10);
+
+    const user = await User.create({
       email,
-      password: hash,
+      password: hashedPassword,
       name,
-    }))
-    .then((user) => {
-      res.send({
-        email: user.email,
-        name: user.name,
-        _id: user._id,
-      });
-    })
-    .catch((error) => {
-      if (error.name === 'MongoError' && error.code === 11000) {
-        const newError = new Error('Пользователь с данным email существует');
-        newError.statusCode = 409;
-        next(newError);
-      }
-      next(error);
     });
+
+    res.send({
+      _id: user._id,
+      email: user.email,
+      name: user.name,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 //-----------------------------------
 
 // Находим информацию о текущем пользователе
-const getCurrentUser = (req, res, next) => {
-  User.findById(req.user._id)
-    .orFail(new NotFoundError('Нет пользователя с таким _id'))
-    .then((user) => res.send(user))
-    .catch(next);
+const getCurrentUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      next(new NotFoundError('Нет пользователя с таким _id'));
+      return;
+    }
+
+    res.send(user);
+  } catch (error) {
+    next(error);
+  }
 };
 //-----------------------------------
 
 // Редактируем информацию о пользователе
-const edutCurrentUserInfo = (req, res, next) => {
-  const { email, name } = req.body;
+const edutCurrentUserInfo = async (req, res, next) => {
+  try {
+    const { name } = req.body;
 
-  User.findByIdAndUpdate(
-    req.user._id,
-    { email, name },
-    {
-      new: true,
-      runValidators: true,
-      upsert: false,
-    },
-  )
-    .orFail(new NotFoundError('Нет пользователя с таким _id'))
-    .then((user) => res.send(user))
-    .catch(next);
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      next(new NotFoundError('Нет пользователя с таким _id'));
+      return;
+    }
+
+    const newUserData = await User.findByIdAndUpdate(
+      req.user._id,
+      { name },
+      {
+        new: true,
+        runValidators: true,
+        upsert: false,
+      },
+    );
+
+    res.send(newUserData);
+  } catch (error) {
+    next(error);
+  }
 };
 
 //-----------------------------------

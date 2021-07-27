@@ -6,67 +6,77 @@ const Movie = require('../models/movie');
 //-----------------------------------
 
 // Получаем все карточки
-const getMovies = (req, res, next) => {
-  Movie.find({ owner: req.user._id })
-    .populate('user')
-    .then((cards) => res.send(cards))
-    .catch(next);
+const getMovies = async (req, res, next) => {
+  try {
+    const movies = await Movie.find({ owner: req.user._id });
+    res.send(movies);
+  } catch (error) {
+    next(error);
+  }
 };
 
 //-----------------------------------
 
 // Создаем новую карточку с фильмом
-const createMovie = (req, res, next) => {
-  const {
-    country,
-    director,
-    duration,
-    year,
-    description,
-    image,
-    trailer,
-    thumbnail,
-    movieId,
-    nameRU,
-    nameEN,
-  } = req.body;
+const createMovie = async (req, res, next) => {
+  try {
+    const {
+      country,
+      director,
+      duration,
+      year,
+      description,
+      image,
+      trailer,
+      thumbnail,
+      movieId,
+      nameRU,
+      nameEN,
+    } = req.body;
 
-  Movie.create({
-    country,
-    director,
-    duration,
-    year,
-    description,
-    image,
-    trailer,
-    thumbnail,
-    movieId,
-    nameRU,
-    nameEN,
-    owner: req.user._id,
-  })
-    .then((movie) => res.send(movie))
-    .catch(next);
+    const movie = await Movie.create({
+      country,
+      director,
+      duration,
+      year,
+      description,
+      image,
+      trailer,
+      thumbnail,
+      movieId,
+      nameRU,
+      nameEN,
+      owner: req.user._id,
+    });
+    res.send(movie);
+  } catch (error) {
+    next(error);
+  }
 };
 
 //-----------------------------------
 
 // Удаляем карточку с фильмом
-const deleteMovie = (req, res, next) => {
-  Movie.findById(req.params.moviedId)
-    .orFail(new NotFoundError('Нет карточки с таким _id'))
-    .then((movie) => {
-      if (req.user._id !== movie.owner.toString()) {
-        throw new ForbiddenError('Вы не можете удалить этот фильм');
-      }
-      return movie;
-    })
-    .then((movie) => {
-      Movie.deleteOne({ _id: movie._id })
-        .then(() => res.send({ message: 'Фильм удален' }))
-        .catch(next);
-    })
-    .catch(next);
+const deleteMovie = async (req, res, next) => {
+  try {
+    const movie = await Movie.findById(req.params.moviedId);
+
+    if (!movie) {
+      next(new NotFoundError('Нет фильма с таким _id'));
+      return;
+    }
+
+    if (req.user._id !== movie.owner.toString()) {
+      next(new ForbiddenError('Вы не можете удалить этот фильм'));
+      return;
+    }
+
+    await Movie.deleteOne({ _id: movie._id });
+
+    res.send({ message: 'Фильм удален' });
+  } catch (error) {
+    next(error);
+  }
 };
 
 //-----------------------------------

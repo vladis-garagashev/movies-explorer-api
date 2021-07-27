@@ -28,25 +28,21 @@ const NotFoundError = require('./errors/not-found-err');
 
 const app = express();
 
-mongoose.connect(momgooLink, mongooseConfig); // подключаемся к базе данных
-
-app.use(requestLogger); // подключаем логгер запросов
-app.use(helmet()); // подключаем helmet
-app.use(rateLimit(rateLimitConfig)); // подключаем ограничитель количества запросов
-app.use(cors(corsConfig)); // подключаем обработчик CORS
-app.options('*', cors()); // обрабатываем предварительные запросы
-
-// Парсинг данных
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
-app.use(cookieParser()); // подключаем cookieParser
+app.use(requestLogger); // Подключаем логгер запросов
+app.use(helmet()); // Подключаем helmet
+app.use(rateLimit(rateLimitConfig)); // Подключаем ограничитель количества запросов
+app.use(cors(corsConfig)); // Подключаем обработчик CORS
+app.options('*', cors()); // Обрабатываем предварительные запросы
+app.use(express.urlencoded({ extended: true })); // Парсинг веб-страниц внутри POST-запроса
+app.use(express.json()); // Парсинг JSON данных
+app.use(cookieParser()); // Подключаем cookieParser
 
 //-----------------------------------
 
 app.post('/signup', signupValidator, createUser);
 app.post('/signin', signinValidator, login);
 
+app.post('/signout', auth, signout);
 app.use('/users', auth, require('./routes/users'));
 app.use('/movies', auth, require('./routes/movies'));
 
@@ -54,8 +50,6 @@ app.use('/movies', auth, require('./routes/movies'));
 app.use('/*', (req, res, next) => {
   next(new NotFoundError('Страница не найдена'));
 });
-
-app.post('/signout', auth, signout);
 
 //-----------------------------------
 
@@ -65,7 +59,18 @@ app.use(centralErrorsHandler); // централизованный обрабо�
 
 //-----------------------------------
 
-app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`App listening on port ${PORT}`);
-});
+const start = async () => {
+  try {
+    app.listen(PORT, () => {
+      // eslint-disable-next-line no-console
+      console.log(`App listening on port ${PORT}`);
+    });
+
+    await mongoose.connect(momgooLink, mongooseConfig); // подключаемся к базе данных
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(`Init application error: ${error}`);
+  }
+};
+
+start();
