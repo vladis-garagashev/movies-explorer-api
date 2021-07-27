@@ -6,8 +6,8 @@ const Movie = require('../models/movie');
 //-----------------------------------
 
 // Получаем все карточки
-const getMoviesCards = (req, res, next) => {
-  Movie.find({})
+const getMovies = (req, res, next) => {
+  Movie.find({ owner: req.user._id })
     .populate('user')
     .then((cards) => res.send(cards))
     .catch(next);
@@ -16,7 +16,7 @@ const getMoviesCards = (req, res, next) => {
 //-----------------------------------
 
 // Создаем новую карточку с фильмом
-const createMovieCard = (req, res, next) => {
+const createMovie = (req, res, next) => {
   const {
     country,
     director,
@@ -52,7 +52,7 @@ const createMovieCard = (req, res, next) => {
 //-----------------------------------
 
 // Удаляем карточку с фильмом
-const deleteMovieCard = (req, res, next) => {
+const deleteMovie = (req, res, next) => {
   Movie.findById(req.params.moviedId)
     .orFail(new NotFoundError('Нет карточки с таким _id'))
     .then((movie) => {
@@ -72,7 +72,7 @@ const deleteMovieCard = (req, res, next) => {
 //-----------------------------------
 
 module.exports = {
-  getMoviesCards,
-  createMovieCard,
-  deleteMovieCard,
+  getMovies,
+  createMovie,
+  deleteMovie,
 };
