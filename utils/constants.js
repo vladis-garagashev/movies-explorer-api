@@ -1,10 +1,15 @@
 const momgooLink = 'mongodb://localhost:27017/diplomadb';
 
-const mongooseSettings = {
+const mongooseConfig = {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
   useUnifiedTopology: true,
+};
+
+const rateLimitConfig = {
+  windowMs: 15 * 60 * 1000,
+  max: 100,
 };
 
 const allowedCors = [
@@ -13,11 +18,17 @@ const allowedCors = [
   'http://localhost:3000',
 ];
 
+const corsConfig = {
+  origin: allowedCors,
+  credentials: true,
+};
+
 const linkRegExp = /^https?:\/\/(www\.)?\S*#?$/;
 
 module.exports = {
   momgooLink,
-  mongooseSettings,
-  allowedCors,
+  mongooseConfig,
+  rateLimitConfig,
+  corsConfig,
   linkRegExp,
 };

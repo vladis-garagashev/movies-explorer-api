@@ -11,14 +11,15 @@ const rateLimit = require('express-rate-limit');
 
 const {
   momgooLink,
-  mongooseSettings,
-  allowedCors,
+  mongooseConfig,
+  rateLimitConfig,
+  corsConfig,
 } = require('./utils/constants');
 const {
   signupValidator,
   signinValidator,
 } = require('./utils/celebrateValidator');
-const { login, createUser } = require('./controllers/users');
+const { login, signout, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const centralErrorsHandler = require('./middlewares/centralErrorsHandler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
@@ -27,23 +28,13 @@ const NotFoundError = require('./errors/not-found-err');
 
 const app = express();
 
-mongoose.connect(momgooLink, mongooseSettings); // подключаемся к базе данных
+mongoose.connect(momgooLink, mongooseConfig); // подключаемся к базе данных
 
 app.use(requestLogger); // подключаем логгер запросов
 app.use(helmet()); // подключаем helmet
-
-// подключаем ограничитель количества запросов
-app.use(rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-}));
-
-// подключаем обработчик CORS
-app.use(cors({
-  origin: allowedCors,
-  credentials: true,
-}));
-app.options('*', cors());
+app.use(rateLimit(rateLimitConfig)); // подключаем ограничитель количества запросов
+app.use(cors(corsConfig)); // подключаем обработчик CORS
+app.options('*', cors()); // обрабатываем предварительные запросы
 
 // Парсинг данных
 app.use(express.urlencoded({ extended: true }));
@@ -64,10 +55,11 @@ app.use('/*', (req, res, next) => {
   next(new NotFoundError('Страница не найдена'));
 });
 
-app.use(errorLogger); // подключаем логгер ошибок
+app.post('/signout', auth, signout);
 
 //-----------------------------------
 
+app.use(errorLogger); // подключаем логгер ошибок
 app.use(errors()); // обработчик ошибок celebrate
 app.use(centralErrorsHandler); // централизованный обработчик ошибок
 

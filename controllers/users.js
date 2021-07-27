@@ -19,6 +19,7 @@ const login = (req, res, next) => {
         .cookie('jwt', token, {
           maxAge: 3600000 * 24 * 7,
           httpOnly: true,
+          sameSite: true,
         })
         .send({
           email: user.email,
@@ -34,6 +35,19 @@ const login = (req, res, next) => {
       }
       next(error);
     });
+};
+
+//-----------------------------------
+
+// Выход из аккаунта
+const signout = (req, res, next) => {
+  try {
+    res
+      .clearCookie('jwt')
+      .send({ message: 'Токен удален' });
+  } catch (error) {
+    next(error);
+  }
 };
 
 //-----------------------------------
@@ -98,6 +112,7 @@ const edutCurrentUserInfo = (req, res, next) => {
 
 module.exports = {
   login,
+  signout,
   createUser,
   getCurrentUser,
   edutCurrentUserInfo,
