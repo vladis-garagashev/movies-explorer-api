@@ -6,11 +6,13 @@ const mongoose = require('mongoose');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
+const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 
 const {
   momgooLink,
   mongooseSettings,
+  allowedCors,
 } = require('./utils/constants');
 const {
   signupValidator,
@@ -35,6 +37,13 @@ app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
 }));
+
+// подключаем обработчик CORS
+app.use(cors({
+  origin: allowedCors,
+  credentials: true,
+}));
+app.options('*', cors());
 
 // Парсинг данных
 app.use(express.urlencoded({ extended: true }));
