@@ -6,7 +6,7 @@ const {
 } = require('../controllers/users');
 const {
   editCurrentUserInfoValidator,
-} = require('../utils/celebrateValidator');
+} = require('../middlewares/celebrateValidator');
 
 //-----------------------------------
 

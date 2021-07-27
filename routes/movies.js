@@ -7,14 +7,14 @@ const {
 } = require('../controllers/movies');
 const {
   createMovieValidator,
-  deleteMovieValidator,
-} = require('../utils/celebrateValidator');
+  ObjectIdValidator,
+} = require('../middlewares/celebrateValidator');
 
 //-----------------------------------
 
 router.get('/', getMovies);
 router.post('/', createMovieValidator, createMovie);
-router.delete('/:moviedId', deleteMovieValidator, deleteMovie);
+router.delete('/:moviedId', ObjectIdValidator, deleteMovie);
 
 //-----------------------------------
 

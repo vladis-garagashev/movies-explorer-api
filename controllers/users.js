@@ -101,7 +101,7 @@ const getCurrentUser = async (req, res, next) => {
 // Редактируем информацию о пользователе
 const edutCurrentUserInfo = async (req, res, next) => {
   try {
-    const { name } = req.body;
+    const { email, name } = req.body;
 
     const user = await User.findById(req.user._id);
     if (!user) {
@@ -111,7 +111,7 @@ const edutCurrentUserInfo = async (req, res, next) => {
 
     const newUserData = await User.findByIdAndUpdate(
       req.user._id,
-      { name },
+      { email, name },
       {
         new: true,
         runValidators: true,

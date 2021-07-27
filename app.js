@@ -18,7 +18,7 @@ const {
 const {
   signupValidator,
   signinValidator,
-} = require('./utils/celebrateValidator');
+} = require('./middlewares/celebrateValidator');
 const { login, signout, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const centralErrorsHandler = require('./middlewares/centralErrorsHandler');
@@ -42,9 +42,11 @@ app.use(cookieParser()); // Подключаем cookieParser
 app.post('/signup', signupValidator, createUser);
 app.post('/signin', signinValidator, login);
 
-app.post('/signout', auth, signout);
-app.use('/users', auth, require('./routes/users'));
-app.use('/movies', auth, require('./routes/movies'));
+app.use(auth);
+
+app.post('/signout', signout);
+app.use('/users', require('./routes/users'));
+app.use('/movies', require('./routes/movies'));
 
 // Обработчик запросов на неизвестные роуты
 app.use('/*', (req, res, next) => {
