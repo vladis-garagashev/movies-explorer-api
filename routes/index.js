@@ -4,7 +4,7 @@ const movieRouter = require('./users');
 const auth = require('../middlewares/auth');
 
 const { login, signout, createUser } = require('../controllers/users');
-const { signupValidator, signinValidator } = require('../middlewares/celebrateValidator');
+const { signupValidator, signinValidator } = require('../middlewares/celebrate-validator');
 const NotFoundError = require('../errors/not-found-err');
 
 router.post('/signup', signupValidator, createUser);

@@ -1,4 +1,4 @@
-const { NODE_ENV, JWT_SECRET } = process.env;
+const { JWT_SECRET } = process.env;
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const NotFoundError = require('../errors/not-found-err');
@@ -16,7 +16,8 @@ const login = async (req, res, next) => {
     const user = await User.findUserByCredentials(email, password);
     const token = jwt.sign(
       { _id: user._id },
-      NODE_ENV ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' },
+      JWT_SECRET,
+      { expiresIn: '7d' },
     );
 
     res

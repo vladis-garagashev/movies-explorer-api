@@ -1,6 +1,3 @@
-require('dotenv').config();
-
-const { PORT = 5000 } = process.env;
 const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
@@ -8,16 +5,18 @@ const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
+const routes = require('./routes/index');
+const centralErrorsHandler = require('./middlewares/central-errors-handler');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
+const { PORT = 5000 } = process.env;
 const {
-  momgooLink,
+  MONGO_URL,
   mongooseConfig,
   rateLimitConfig,
   corsConfig,
-} = require('./utils/constants');
-const routes = require('./routes/index');
-const centralErrorsHandler = require('./middlewares/centralErrorsHandler');
-const { requestLogger, errorLogger } = require('./middlewares/logger');
+} = require('./config');
+
 //-----------------------------------
 
 const app = express();
@@ -44,7 +43,7 @@ const start = async () => {
       console.log(`App listening on port ${PORT}`);
     });
 
-    await mongoose.connect(momgooLink, mongooseConfig); // подключаемся к базе данных
+    await mongoose.connect(MONGO_URL, mongooseConfig); // подключаемся к базе данных
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(`Init application error: ${error}`);
