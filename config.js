@@ -1,6 +1,10 @@
 require('dotenv').config();
 
-const { JWT_SECRET = 'JWT_SECRET', MONGO_URL = 'mongodb://localhost:27017/diplomadb' } = process.env;
+const {
+  NODE_ENV = 'development',
+  JWT_SECRET = 'JWT_SECRET',
+  MONGO_URL = 'mongodb://localhost:27017/diplomadb',
+} = process.env;
 
 const mongooseConfig = {
   useNewUrlParser: true,
@@ -26,6 +30,7 @@ const corsConfig = {
 };
 
 module.exports = {
+  NODE_ENV,
   JWT_SECRET,
   MONGO_URL,
   mongooseConfig,

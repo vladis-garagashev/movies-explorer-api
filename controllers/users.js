@@ -1,11 +1,10 @@
-const { JWT_SECRET } = process.env;
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const NotFoundError = require('../errors/not-found-err');
 const ConflictError = require('../errors/conflict-error');
 
 const User = require('../models/user');
-
+const { JWT_SECRET } = require('../config');
 //-----------------------------------
 
 // Отправка запроса авторизации
@@ -122,6 +121,10 @@ const edutCurrentUserInfo = async (req, res, next) => {
 
     res.send(newUserData);
   } catch (error) {
+    if (error.name === 'MongoError') {
+      next(new ConflictError('Данный email уже занят'));
+      return;
+    }
     next(error);
   }
 };

@@ -11,6 +11,7 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 5000 } = process.env;
 const {
+  NODE_ENV,
   MONGO_URL,
   mongooseConfig,
   rateLimitConfig,
@@ -40,7 +41,7 @@ const start = async () => {
   try {
     app.listen(PORT, () => {
       // eslint-disable-next-line no-console
-      console.log(`App listening on port ${PORT}`);
+      console.log(`App listening on port ${PORT} is on ${NODE_ENV}`);
     });
 
     await mongoose.connect(MONGO_URL, mongooseConfig); // подключаемся к базе данных
