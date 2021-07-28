@@ -6,6 +6,13 @@ const BadRequestError = require('../errors/bad-request-err');
 
 const User = require('../models/user');
 const { JWT_SECRET } = require('../config');
+const {
+  bodyErrorMessage,
+  emailIsExistrMessage,
+  emailIsTakenMessage,
+  userNotFoundMessage,
+  tokenDeletedMessage,
+} = require('../utils/constants');
 //-----------------------------------
 
 // Отправка запроса авторизации
@@ -33,7 +40,7 @@ const login = async (req, res, next) => {
       });
   } catch (error) {
     if (error.name === 'ValidationError') {
-      next(new BadRequestError(`${Object.values(error.errors).map((err) => err.message).join(', ')}`));
+      next(new BadRequestError(bodyErrorMessage(error)));
       return;
     }
     next(error);
@@ -47,7 +54,7 @@ const signout = (req, res, next) => {
   try {
     res
       .clearCookie('jwt')
-      .send({ message: 'Токен удален' });
+      .send({ message: tokenDeletedMessage });
   } catch (error) {
     next(error);
   }
@@ -63,7 +70,7 @@ const createUser = async (req, res, next) => {
     const candidate = await User.findOne({ email });
 
     if (candidate) {
-      next(new ConflictError('Пользователь с данным email существует'));
+      next(new ConflictError(emailIsExistrMessage));
       return;
     }
 
@@ -82,7 +89,7 @@ const createUser = async (req, res, next) => {
     });
   } catch (error) {
     if (error.name === 'ValidationError') {
-      next(new BadRequestError(`${Object.values(error.errors).map((err) => err.message).join(', ')}`));
+      next(new BadRequestError(bodyErrorMessage(error)));
       return;
     }
     next(error);
@@ -96,7 +103,7 @@ const getCurrentUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
     if (!user) {
-      next(new NotFoundError('Нет пользователя с таким _id'));
+      next(new NotFoundError(userNotFoundMessage));
       return;
     }
 
@@ -114,7 +121,7 @@ const edutCurrentUserInfo = async (req, res, next) => {
 
     const user = await User.findById(req.user._id);
     if (!user) {
-      next(new NotFoundError('Нет пользователя с таким _id'));
+      next(new NotFoundError(userNotFoundMessage));
       return;
     }
 
@@ -131,11 +138,11 @@ const edutCurrentUserInfo = async (req, res, next) => {
     res.send(newUserData);
   } catch (error) {
     if (error.name === 'ValidationError') {
-      next(new BadRequestError(`${Object.values(error.errors).map((err) => err.message).join(', ')}`));
+      next(new BadRequestError(bodyErrorMessage(error)));
       return;
     }
     if (error.name === 'MongoError') {
-      next(new ConflictError('Данный email уже занят'));
+      next(new ConflictError(emailIsTakenMessage));
       return;
     }
     next(error);

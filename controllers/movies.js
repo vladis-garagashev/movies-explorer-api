@@ -3,7 +3,13 @@ const ForbiddenError = require('../errors/forbidden-err');
 const BadRequestError = require('../errors/bad-request-err');
 
 const Movie = require('../models/movie');
-
+const {
+  bodyErrorMessage,
+  movieNotFoundMessage,
+  movieDeletionForbiddenMessage,
+  movieDeletedMessage,
+  inValidIdMessage,
+} = require('../utils/constants');
 //-----------------------------------
 
 // Получаем все карточки
@@ -52,7 +58,7 @@ const createMovie = async (req, res, next) => {
     res.send(movie);
   } catch (error) {
     if (error.name === 'ValidationError') {
-      next(new BadRequestError(`${Object.values(error.errors).map((err) => err.message).join(', ')}`));
+      next(new BadRequestError(bodyErrorMessage(error)));
       return;
     }
     next(error);
@@ -67,21 +73,21 @@ const deleteMovie = async (req, res, next) => {
     const movie = await Movie.findById(req.params.moviedId);
 
     if (!movie) {
-      next(new NotFoundError('Нет фильма с таким _id'));
+      next(new NotFoundError(movieNotFoundMessage));
       return;
     }
 
     if (req.user._id !== movie.owner.toString()) {
-      next(new ForbiddenError('Вы не можете удалить этот фильм'));
+      next(new ForbiddenError(movieDeletionForbiddenMessage));
       return;
     }
 
     await Movie.deleteOne({ _id: movie._id });
 
-    res.send({ message: 'Фильм удален' });
+    res.send({ message: movieDeletedMessage });
   } catch (error) {
     if (error.name === 'CastError') {
-      next(new BadRequestError('Не валидный _id'));
+      next(new BadRequestError(inValidIdMessage));
       return;
     }
     next(error);
