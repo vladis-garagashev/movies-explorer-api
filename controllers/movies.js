@@ -1,5 +1,6 @@
 const NotFoundError = require('../errors/not-found-err');
 const ForbiddenError = require('../errors/forbidden-err');
+const BadRequestError = require('../errors/bad-request-err');
 
 const Movie = require('../models/movie');
 
@@ -50,6 +51,10 @@ const createMovie = async (req, res, next) => {
     });
     res.send(movie);
   } catch (error) {
+    if (error.name === 'ValidationError') {
+      next(new BadRequestError(`${Object.values(error.errors).map((err) => err.message).join(', ')}`));
+      return;
+    }
     next(error);
   }
 };
@@ -75,6 +80,10 @@ const deleteMovie = async (req, res, next) => {
 
     res.send({ message: 'Фильм удален' });
   } catch (error) {
+    if (error.name === 'CastError') {
+      next(new BadRequestError('Не валидный _id'));
+      return;
+    }
     next(error);
   }
 };

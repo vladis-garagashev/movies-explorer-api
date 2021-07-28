@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const NotFoundError = require('../errors/not-found-err');
 const ConflictError = require('../errors/conflict-error');
+const BadRequestError = require('../errors/bad-request-err');
 
 const User = require('../models/user');
 const { JWT_SECRET } = require('../config');
@@ -31,6 +32,10 @@ const login = async (req, res, next) => {
         name: user.name,
       });
   } catch (error) {
+    if (error.name === 'ValidationError') {
+      next(new BadRequestError(`${Object.values(error.errors).map((err) => err.message).join(', ')}`));
+      return;
+    }
     next(error);
   }
 };
@@ -76,6 +81,10 @@ const createUser = async (req, res, next) => {
       name: user.name,
     });
   } catch (error) {
+    if (error.name === 'ValidationError') {
+      next(new BadRequestError(`${Object.values(error.errors).map((err) => err.message).join(', ')}`));
+      return;
+    }
     next(error);
   }
 };
@@ -121,6 +130,10 @@ const edutCurrentUserInfo = async (req, res, next) => {
 
     res.send(newUserData);
   } catch (error) {
+    if (error.name === 'ValidationError') {
+      next(new BadRequestError(`${Object.values(error.errors).map((err) => err.message).join(', ')}`));
+      return;
+    }
     if (error.name === 'MongoError') {
       next(new ConflictError('Данный email уже занят'));
       return;

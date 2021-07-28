@@ -9,8 +9,8 @@ const routes = require('./routes/index');
 const centralErrorsHandler = require('./middlewares/central-errors-handler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const { PORT = 5000 } = process.env;
 const {
+  PORT,
   NODE_ENV,
   MONGO_URL,
   mongooseConfig,
@@ -41,7 +41,7 @@ const start = async () => {
   try {
     app.listen(PORT, () => {
       // eslint-disable-next-line no-console
-      console.log(`App listening on port ${PORT} is on ${NODE_ENV}`);
+      console.log(`App listening on port ${PORT} is on ${NODE_ENV} mode`);
     });
 
     await mongoose.connect(MONGO_URL, mongooseConfig); // подключаемся к базе данных

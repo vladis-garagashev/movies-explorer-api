@@ -8,7 +8,7 @@ const {
 const {
   createMovieValidator,
   ObjectIdValidator,
-} = require('../middlewares/celebrateValidator');
+} = require('../middlewares/celebrate-validator');
 
 //-----------------------------------
 
