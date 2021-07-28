@@ -9,5 +9,7 @@ api.findyourmovies.nomoredomains.club
 
 ### Скрипты:
 npm run start - Запуск сервера
+
 npm run dev - Запуск сервера в режиме разработки
+
 npm run lint - Запуск линтера
