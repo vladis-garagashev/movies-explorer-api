@@ -11,7 +11,7 @@ const {
   emailIsExistrMessage,
   emailIsTakenMessage,
   userNotFoundMessage,
-  tokenDeletedMessage,
+  loggedOutMessage,
 } = require('../utils/constants');
 //-----------------------------------
 
@@ -54,7 +54,7 @@ const signout = (req, res, next) => {
   try {
     res
       .clearCookie('jwt')
-      .send({ message: tokenDeletedMessage });
+      .send({ message: loggedOutMessage });
   } catch (error) {
     next(error);
   }

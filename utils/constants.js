@@ -9,7 +9,7 @@ const movieNotFoundMessage = 'Нет фильма с таким _id';
 const movieDeletionForbiddenMessage = 'Вы не можете удалить этот фильм';
 const movieDeletedMessage = 'Фильм удален';
 const inValidIdMessage = 'Не валидный _id';
-const tokenDeletedMessage = 'Токен удален';
+const loggedOutMessage = 'Вы вышли из системы';
 const notFoundMessage = 'Страница не найдена';
 
 module.exports = {
@@ -22,6 +22,6 @@ module.exports = {
   movieDeletionForbiddenMessage,
   movieDeletedMessage,
   inValidIdMessage,
-  tokenDeletedMessage,
+  loggedOutMessage,
   notFoundMessage,
 };
