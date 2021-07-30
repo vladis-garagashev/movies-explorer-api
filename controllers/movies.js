@@ -4,7 +4,7 @@ const BadRequestError = require('../errors/bad-request-err');
 
 const Movie = require('../models/movie');
 const {
-  bodyErrorMessage,
+  bodyBadRequestMessage,
   movieNotFoundMessage,
   movieDeletionForbiddenMessage,
   movieDeletedMessage,
@@ -58,7 +58,7 @@ const createMovie = async (req, res, next) => {
     res.send(movie);
   } catch (error) {
     if (error.name === 'ValidationError') {
-      next(new BadRequestError(bodyErrorMessage(error)));
+      next(new BadRequestError(bodyBadRequestMessage(error)));
       return;
     }
     next(error);

@@ -1,6 +1,6 @@
 const linkRegExp = /^https?:\/\/(www\.)?\S*#?$/;
 
-const bodyErrorMessage = (error) => `${Object.values(error.errors).map((err) => err.message).join(', ')}`;
+const bodyBadRequestMessage = (error) => `${Object.values(error.errors).map((err) => err.message).join(', ')}`;
 
 const emailIsExistrMessage = 'Пользователь с данным email существует';
 const emailIsTakenMessage = 'Данный email уже занят';
@@ -16,7 +16,7 @@ module.exports = {
   linkRegExp,
   emailIsExistrMessage,
   emailIsTakenMessage,
-  bodyErrorMessage,
+  bodyBadRequestMessage,
   userNotFoundMessage,
   movieNotFoundMessage,
   movieDeletionForbiddenMessage,

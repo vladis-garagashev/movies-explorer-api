@@ -7,7 +7,7 @@ const BadRequestError = require('../errors/bad-request-err');
 const User = require('../models/user');
 const { JWT_SECRET } = require('../config');
 const {
-  bodyErrorMessage,
+  bodyBadRequestMessage,
   emailIsExistrMessage,
   emailIsTakenMessage,
   userNotFoundMessage,
@@ -40,7 +40,7 @@ const login = async (req, res, next) => {
       });
   } catch (error) {
     if (error.name === 'ValidationError') {
-      next(new BadRequestError(bodyErrorMessage(error)));
+      next(new BadRequestError(bodyBadRequestMessage(error)));
       return;
     }
     next(error);
@@ -89,7 +89,7 @@ const createUser = async (req, res, next) => {
     });
   } catch (error) {
     if (error.name === 'ValidationError') {
-      next(new BadRequestError(bodyErrorMessage(error)));
+      next(new BadRequestError(bodyBadRequestMessage(error)));
       return;
     }
     next(error);
@@ -138,7 +138,7 @@ const edutCurrentUserInfo = async (req, res, next) => {
     res.send(newUserData);
   } catch (error) {
     if (error.name === 'ValidationError') {
-      next(new BadRequestError(bodyErrorMessage(error)));
+      next(new BadRequestError(bodyBadRequestMessage(error)));
       return;
     }
     if (error.name === 'MongoError') {
