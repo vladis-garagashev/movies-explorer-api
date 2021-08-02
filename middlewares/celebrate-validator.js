@@ -1,6 +1,8 @@
 const { celebrate, Joi } = require('celebrate');
 const { ObjectId } = require('mongoose').Types;
-const { linkRegExp } = require('../utils/constants');
+const validator = require('validator');
+
+const { inValidIdMessage } = require('../utils/constants');
 
 const signupValidator = celebrate({
   body: Joi.object().keys({
@@ -71,19 +73,39 @@ const createMovieValidator = celebrate({
       .messages({
         'any.required': 'Поле "description" обязательное',
       }),
-    image: Joi.string().required().pattern(linkRegExp).message('Поле "thumbnail" должно быть валидным url')
+    image: Joi.string().required().custom((value, helpers) => {
+      if (validator.isURL(value)) {
+        return value;
+      }
+      return helpers.message('Поле "image" должно быть валидным url');
+    })
       .messages({
         'any.required': 'Поле "image" обязательное',
       }),
-    trailer: Joi.string().required().pattern(linkRegExp).message('Поле "thumbnail" должно быть валидным url')
+    trailer: Joi.string().required().custom((value, helpers) => {
+      if (validator.isURL(value)) {
+        return value;
+      }
+      return helpers.message('Поле "trailer" должно быть валидным url');
+    })
       .messages({
         'any.required': 'Поле "trailer" обязательное',
       }),
-    thumbnail: Joi.string().required().pattern(linkRegExp).message('Поле "thumbnail" должно быть валидным url')
+    thumbnail: Joi.string().required().custom((value, helpers) => {
+      if (validator.isURL(value)) {
+        return value;
+      }
+      return helpers.message('Поле "thumbnail" должно быть валидным url');
+    })
       .messages({
         'any.required': 'Поле "thumbnail" обязательное',
       }),
-    movieId: Joi.string().required()
+    movieId: Joi.string().required().custom((value, helpers) => {
+      if (validator.isDecimal(value)) {
+        return value;
+      }
+      return helpers.message('Поле "movieId" должно быть десятичным числом');
+    })
       .messages({
         'any.required': 'Поле "movieId" обязательное',
       }),
@@ -104,7 +126,7 @@ const ObjectIdValidator = celebrate({
       if (ObjectId.isValid(value)) {
         return value;
       }
-      return helpers.message('Невалидный _id');
+      return helpers.message(inValidIdMessage);
     }),
   }),
 });

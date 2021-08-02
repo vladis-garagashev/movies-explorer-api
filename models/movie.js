@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const { linkRegExp } = require('../utils/constants');
+const validator = require('validator');
+const { invalidUrldMessage } = require('../utils/constants');
 
 const movieSchema = new mongoose.Schema({
   country: {
@@ -26,24 +27,24 @@ const movieSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: (link) => linkRegExp.test(link),
-      message: 'Вставьте ссылку на постер фильма',
+      validator: (v) => validator.isURL(v),
+      message: invalidUrldMessage,
     },
   },
   trailer: {
     type: String,
     required: true,
     validate: {
-      validator: (link) => linkRegExp.test(link),
-      message: 'Вставьте ссылку на трейлер фильма',
+      validator: (v) => validator.isURL(v),
+      message: invalidUrldMessage,
     },
   },
   thumbnail: {
     type: String,
     required: true,
     validate: {
-      validator: (link) => linkRegExp.test(link),
-      message: 'Вставьте ссылку на миниатюру постера фильма',
+      validator: (v) => validator.isURL(v),
+      message: invalidUrldMessage,
     },
   },
   owner: {
