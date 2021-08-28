@@ -21,11 +21,7 @@ const login = async (req, res, next) => {
     const { email, password } = req.body;
 
     const user = await User.findUserByCredentials(email, password);
-    const token = jwt.sign(
-      { _id: user._id },
-      JWT_SECRET,
-      { expiresIn: '7d' },
-    );
+    const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
 
     res
       .cookie('jwt', token, {
@@ -83,11 +79,20 @@ const createUser = async (req, res, next) => {
       name,
     });
 
-    res.send({
-      _id: user._id,
-      email: user.email,
-      name: user.name,
-    });
+    const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+
+    res
+      .cookie('jwt', token, {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+        sameSite: 'None',
+        secure: true,
+      })
+      .send({
+        _id: user._id,
+        email: user.email,
+        name: user.name,
+      });
   } catch (error) {
     if (error.name === 'ValidationError') {
       next(new BadRequestError(bodyBadRequestMessage(error)));
